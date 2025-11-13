@@ -107,5 +107,5 @@ def pl3_silver_dallas():
 def pl4_silver_combined():
     chi = spark.read.table("pl3_silver_chicago")
     dal = spark.read.table("pl3_silver_dallas")
-    return chi.unionByName(dal)
+    return chi.unionByName(dal).withColumn("last_updated", sf.current_timestamp())
     
