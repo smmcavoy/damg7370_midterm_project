@@ -1,8 +1,8 @@
 from pyspark import pipelines as dp
 import pyspark.sql.functions as sf
-import pyspark.sql.types as st
 
 facility_schema = """
+  facility_id string,
   facility_name string,
   aka_name string,
   facility_type string,
@@ -17,7 +17,7 @@ dp.create_streaming_table(
 
 @dp.table()
 def pl5_gold_facility():
-    df = spark.sql('SELECT facility_name, aka_name, facility_type, last_updated FROM workspace.damg7370.pl4_silver_combined')
+    df = spark.sql('SELECT uuid() as facility_id, facility_name, aka_name, facility_type, last_updated FROM workspace.damg7370.pl4_silver_combined')
     return df
 
 dp.create_auto_cdc_flow(

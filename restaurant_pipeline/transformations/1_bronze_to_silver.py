@@ -103,9 +103,21 @@ def pl3_silver_dallas():
         df = df.drop(*[sf.col(f"Violation {kw} - {i}") for i in range(1, 26)])
     return df.drop("Street Number").drop("Street Name").drop("Street Direction").drop("Street Type").drop("Street Unit").drop("Violation  Memo - 20").drop("Inspection Month").drop("Inspection Year").drop("Lat Long Location")
 
+@dp.expect('clean_violations_nn', 'clean_violations is not null')
 @dp.table()
-def pl4_silver_combined():
+def pl35_silver_combined():
     chi = spark.read.table("pl3_silver_chicago")
     dal = spark.read.table("pl3_silver_dallas")
-    return chi.unionByName(dal).withColumn("last_updated", sf.current_timestamp())
+    return chi.unionByName(dal)\
+        .withColumn("last_updated", sf.current_timestamp())\
+        .withColumn("date_key", sf.date_format(sf.col("full_date"), "yyyyMMdd"))
+
+@dp.table()
+def pl4_silver_combined():
+    return spark.sql(
+        """
+        select uuid() as inspection_key
+        , *
+        from pl35_silver_combined"""
+    )
     
